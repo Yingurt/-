@@ -3,7 +3,7 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
 const app = express();
-const port = 3000;
+const port = 3001; // 或其他未被使用的端口
 
 // 连接到 SQLite 数据库
 const db = new sqlite3.Database('./inventory.db', (err) => {
@@ -47,17 +47,18 @@ app.get('/api/items', (req, res) => {
 app.post('/api/items', (req, res) => {
     const { name, category, quantity, unit, purchaseDate, expiryDate, status, dailyConsumption } = req.body;
     db.run(`INSERT INTO items (name, category, quantity, unit, purchaseDate, expiryDate, status, dailyConsumption) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, 
-        [name, category, quantity, unit, purchaseDate, expiryDate, status, dailyConsumption], 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [name, category, quantity, unit, purchaseDate, expiryDate, status, dailyConsumption],
         function(err) {
             if (err) {
+                console.error('添加物品时出错:', err);
                 res.status(400).json({"error": err.message});
                 return;
             }
-            res.json({
+            console.log('新物品已添加:', {id: this.lastID, ...req.body});
+            res.status(201).json({
                 "message": "success",
-                "data": { id: this.lastID },
-                "id" : this.lastID
+                "data": {id: this.lastID, ...req.body}
             });
         });
 });
