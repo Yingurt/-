@@ -84,7 +84,6 @@ pip install -r requirements.txt
 
 Ying Zhang - [smyyz22@nottingham.ac.uk]
 
-项目链接: [https://github.com/yourusername/your-repo-name](https://github.com/yourusername/your-repo-name)
 
 ## 许可证
 
