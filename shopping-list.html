@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>购物清单 - 智能冰箱管家</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-snowflake"></i> 智能冰箱管家</h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html" class="active"><i class="fas fa-home"></i> 仪表盘</a></li>
+                    <li><a href="inventory-management.html"><i class="fas fa-list"></i> 库存管理</a></li>
+                    <li><a href="shopping-list.html"><i class="fas fa-shopping-cart"></i> 购物清单</a></li>
+                    <li><a href="recipes.html"><i class="fas fa-utensils"></i> 食谱推荐</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <section id="shopping-list">
+                <h2>购物清单</h2>
+                <ul id="shoppingListItems"></ul>
+                <button onclick="generateShoppingList()"><i class="fas fa-sync"></i> 更新购物清单</button>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
