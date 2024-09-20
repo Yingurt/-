@@ -1,27 +1,20 @@
 # 冰箱库存系统
 
 ## 项目简介
-
 这是一个用于管理家庭冰箱内食品库存的系统。它可以帮助用户追踪冰箱中的食品,记录保质期,并提醒用户及时使用即将过期的食品。
-
 ## 主要功能
-
 - 添加新食品到库存
 - 查看当前库存列表
 - 更新食品信息(如数量、保质期等)
 - 删除已使用完的食品
 - 过期提醒功能
 - 库存搜索功能
-
 ## 安装说明
-
-
 #### 前提条件
 在安装和运行项目之前，确保你的电脑已安装以下工具：
 1. **Git**：用于版本控制和从 GitHub 克隆项目。[下载 Git](https://git-scm.com/downloads)
 2. **Node.js 和 npm**（可选）：如果项目依赖 Node.js，确保你已安装。[下载 Node.js](https://nodejs.org/en/)
 3. **Python 和 pip**（可选）：如果项目依赖 Python，确保你已安装 Python 和包管理工具 pip。[下载 Python](https://www.python.org/downloads/)
-
 ---
 
 #### 安装步骤
@@ -31,13 +24,11 @@
 
    ```bash
    git clone https://github.com/yourusername/your-repo-name.git
-
 克隆完成后，进入项目文件夹：
-
-
-
+cd your-repo-name
+安装依赖
+如果项目是基于 Node.js： 使用以下命令安装项目所需的依赖库（通过 package.json 管理依赖）：
 ## 使用方法
-
 ```markdown
 1. **添加新物品**：
    - 点击“添加新物品”按钮，选择物品分类、物品名称，填写数量、单位、保质期等信息，系统会自动计算物品的过期日期。
@@ -54,6 +45,9 @@
 
 5. **过滤功能**：
    - 在“库存管理”页面中，用户可以通过类别和状态筛选物品，方便管理。
+npm install
+如果项目是基于 Python： 使用以下命令安装 Python 项目依赖（通过 requirements.txt 管理依赖）：
+pip install -r requirements.txt
 
 
 ## 技术栈
@@ -77,10 +71,7 @@
 5. **部署**：
    - GitHub Pages 用于部署静态网页
    - [可选] Heroku / Vercel / Netlify（如果有后端服务）
-
-
 ## 贡献指南
-
 欢迎对本项目提出改进建议或直接贡献代码。请遵循以下步骤:
 
 1. Fork 本仓库
