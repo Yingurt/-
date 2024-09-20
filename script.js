@@ -222,7 +222,7 @@ function showAddItemForm(category) {
     const form = document.createElement('tr');
     form.className = 'add-item-form';
     form.innerHTML = `
-        <td><input type="text" id="newItemName" placeholder="物品名称" required></td>
+        <td><input type="text" id="newItemName" placeholder="物品��称" required></td>
         <td><input type="number" id="newItemQuantity" value="1" min="1" required></td>
         <td>
             <select id="newItemUnit" required>
@@ -538,6 +538,78 @@ function setupDailyStatusUpdate() {
 // 在页面加载时设置每日更新
 document.addEventListener('DOMContentLoaded', setupDailyStatusUpdate);
 
+// 从服务器加载库存
+async function loadInventory() {
+    try {
+        const response = await fetch('/api/items');
+        const data = await response.json();
+        inventory = {};
+        data.data.forEach(item => {
+            inventory[item.name] = item;
+        });
+        updateInventoryTables();
+    } catch (error) {
+        console.error('Error loading inventory:', error);
+    }
+}
+
+// 添加新物品到服务器
+async function addItemToServer(item) {
+    try {
+        const response = await fetch('/api/items', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(item),
+        });
+        const data = await response.json();
+        if (data.message === 'success') {
+            inventory[item.name] = item;
+            updateInventoryTables();
+        }
+    } catch (error) {
+        console.error('Error adding item:', error);
+    }
+}
+
+// 更新服务器上的物品
+async function updateItemOnServer(item) {
+    try {
+        const response = await fetch(`/api/items/${item.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(item),
+        });
+        const data = await response.json();
+        if (data.message === 'success') {
+            inventory[item.name] = item;
+            updateInventoryTables();
+        }
+    } catch (error) {
+        console.error('Error updating item:', error);
+    }
+}
+
+// 从服务器删除物品
+async function deleteItemFromServer(itemId) {
+    try {
+        const response = await fetch(`/api/items/${itemId}`, {
+            method: 'DELETE',
+        });
+        const data = await response.json();
+        if (data.message === 'deleted') {
+            delete inventory[itemId];
+            updateInventoryTables();
+        }
+    } catch (error) {
+        console.error('Error deleting item:', error);
+    }
+}
+
+// 修改 addGlobalNewItem 函数
 function addGlobalNewItem(e) {
     e.preventDefault();
     const category = document.getElementById('globalItemCategory').value;
@@ -566,201 +638,24 @@ function addGlobalNewItem(e) {
             dailyConsumption: parseFloat(dailyConsumption)
         };
 
-        inventory[name] = item;
-        saveInventory();
-        updateInventoryTables();
+        addItemToServer(item);
         closeGlobalAddItemModal();
-        
-        // 添加动画效果
-        const newRow = document.querySelector(`.inventory-table:has(caption:contains('${category}')) tr:has(td:contains('${name}'))`);
-        if (newRow) {
-            newRow.classList.add('new-item-animation');
-            setTimeout(() => newRow.classList.remove('new-item-animation'), 1000);
-        }
     } else {
         alert('请填写所有必要字段');
     }
 }
 
-function closeGlobalAddItemModal() {
-    document.getElementById('globalAddItemModal').style.display = 'none';
-}
-
-function closeEditItemModal() {
-    document.getElementById('editItemModal').style.display = 'none';
-}
-
-function calculateStatus(purchaseDate, expiryDays) {
-    const today = new Date();
-    const expiryDate = new Date(new Date(purchaseDate).getTime() + expiryDays * 24 * 60 * 60 * 1000);
-    const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-
-    if (daysLeft > 7) return "新鲜";
-    if (daysLeft > 0) return "即将过期";
-    return "已过期";
-}
-
-function updateDashboard() {
-    const expiringCount = Object.values(inventory).filter(item => item.status === "即将过期").length;
-    const lowStockCount = Object.values(inventory).filter(item => item.quantity <= 2).length;
-    const totalItemCount = Object.keys(inventory).length;
-
-    document.getElementById('expiringCount').textContent = expiringCount;
-    document.getElementById('lowStockCount').textContent = lowStockCount;
-    document.getElementById('totalItemCount').textContent = totalItemCount;
-
-    updateInventoryChart();
-}
-
-function updateInventoryChart() {
-    const ctx = document.getElementById('inventoryChart').getContext('2d');
-    const categories = ['蔬菜', '水果', '肉类', '饮料', '其他'];
-    const data = categories.map(category => 
-        Object.values(inventory).filter(item => item.category === category).length
-    );
-
-    new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: categories,
-            datasets: [{
-                data: data,
-                backgroundColor: [
-                    '#FF6384',
-                    '#36A2EB',
-                    '#FFCE56',
-                    '#4BC0C0',
-                    '#9966FF'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            title: {
-                display: true,
-                text: '库存分类统计'
-            }
-        }
-    });
-}
-
-function getStatusClass(status) {
-    switch (status) {
-        case '新鲜': return 'fresh';
-        case '即将过期': return 'expiring-soon';
-        case '已过期': return 'expired';
-        default: return '';
-    }
-}
-
-function editField(itemName, field) {
-    const item = inventory[itemName];
-    const modal = document.getElementById('editItemModal');
-    const form = document.getElementById('editItemForm');
-
-    // 清空表单
-    form.innerHTML = '';
-
-    // 创建输入字段
-    const input = document.createElement('input');
-    input.type = field === 'expiryDate' ? 'date' : 'text';
-    input.value = item[field];
-
-    // 创建保存按钮
-    const saveButton = document.createElement('button');
-    saveButton.textContent = '保存';
-    saveButton.onclick = (e) => {
-        e.preventDefault();
-        item[field] = input.value;
-        saveInventory();
-        updateInventoryTables();
-        modal.style.display = 'none';
-    };
-
-    // 将输入字段和按钮添加到表单
-    form.appendChild(input);
-    form.appendChild(saveButton);
-
-    // 显示模态框
-    modal.style.display = 'block';
-}
-
+// 修改 deleteItem 函数
 function deleteItem(itemName) {
     if (confirm(`确定要删除 ${itemName} 吗？`)) {
-        delete inventory[itemName];
-        saveInventory();
-        updateInventoryTables();
+        deleteItemFromServer(inventory[itemName].id);
     }
 }
 
-function applyFilters() {
-    updateInventoryTables();
-}
+// 在页面加载时加载库存
+document.addEventListener('DOMContentLoaded', () => {
+    loadInventory();
+    // ... 保留之前的代码 ...
+});
 
-function updateShoppingList() {
-    const list = document.getElementById('shoppingListItems');
-    list.innerHTML = '';
-    const lowStockItems = Object.values(inventory).filter(item => item.quantity <= 2);
-    for (const item of lowStockItems) {
-        const li = document.createElement('li');
-        li.textContent = `${item.name} (当前库存: ${item.quantity})`;
-        list.appendChild(li);
-    }
-}
-
-function generateShoppingList() {
-    updateShoppingList();
-    alert('购物清单已更新');
-}
-
-function suggestRecipes() {
-    const suggestions = document.getElementById('recipeSuggestions');
-    suggestions.innerHTML = '';
-    const availableIngredients = Object.keys(inventory).join(', ');
-    const recipes = [
-        `使用${availableIngredients}制作美味沙拉`,
-        `用${availableIngredients}烹饪营养炖菜`,
-        `尝试用${availableIngredients}制作创意三明治`
-    ];
-    recipes.forEach(recipe => {
-        const p = document.createElement('p');
-        p.textContent = recipe;
-        suggestions.appendChild(p);
-    });
-}
-
-function generateRecipes() {
-    suggestRecipes();
-    alert('新的食谱推荐已生成');
-}
-
-function clearInputs() {
-    // 实现清除输入的逻辑
-}
-
-function scanBarcode() {
-    // 模拟条形码扫描
-    alert('条形码扫描功能尚未实现');
-}
-
-function voiceInput() {
-    // 模拟语音输入
-    alert('语音输入功能尚未实现');
-}
-
-// 在每次修改inventory后，保存到localStorage
-function saveInventory() {
-    localStorage.setItem('inventory', JSON.stringify(inventory));
-}
-
-function setupEditItemModal() {
-    const modal = document.getElementById('editItemModal');
-    const closeBtn = modal.querySelector('.close');
-
-    closeBtn.onclick = () => modal.style.display = 'none';
-    window.onclick = (event) => {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    };
-}
+// ... 保留其他函数 ...
