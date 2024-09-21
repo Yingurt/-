@@ -1,4 +1,10 @@
-let inventory = JSON.parse(localStorage.getItem('inventory')) || {};
+let inventory;
+try {
+    inventory = JSON.parse(localStorage.getItem('inventory')) || {};
+} catch (error) {
+    console.error('Error parsing inventory from localStorage:', error);
+    inventory = {};
+}
 const categories = {
     "蔬菜": ["胡萝卜", "西兰花", "番茄", "黄瓜", "其他"],
     "水果": ["苹果", "香蕉", "橙子", "草莓", "其他"],
@@ -550,7 +556,11 @@ function voiceInput() {
 }
 
 function saveInventory() {
-    localStorage.setItem('inventory', JSON.stringify(inventory));
+    try {
+        localStorage.setItem('inventory', JSON.stringify(inventory));
+    } catch (error) {
+        logError('Error saving inventory to localStorage:', error);
+    }
 }
 
 function setupDailyStatusUpdate() {
@@ -576,3 +586,32 @@ function setStatusColor(statusCell, status) {
     statusCell.classList.remove('status-fresh', 'status-expiring-soon', 'status-expired');
     statusCell.classList.add(getStatusClass(status));
 }
+
+function logError(message, error) {
+    console.error(message, error);
+    // 可以在这里添加更多的错误处理逻辑，比如显示一个错误消息给用户
+}
+
+function initializeApp() {
+    console.log('Initializing app...');
+    updateInventoryStatus();
+    updateInventoryTables();
+    setupEventListeners();
+    console.log('App initialized successfully.');
+}
+
+function setupEventListeners() {
+    document.getElementById('globalAddItemForm').addEventListener('submit', addGlobalNewItem);
+    document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+    document.getElementById('statusFilter').addEventListener('change', applyFilters);
+    document.getElementById('globalAddItemBtn').addEventListener('click', showGlobalAddItemModal);
+    document.getElementById('inventoryTables').addEventListener('click', handleRowClick);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        initializeApp();
+    } catch (error) {
+        logError('Error initializing app:', error);
+    }
+});
