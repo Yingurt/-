@@ -120,12 +120,28 @@ function createItemRow(itemName, item) {
     const row = document.createElement('tr');
     row.dataset.itemName = itemName;
     const estimatedConsumptionDate = calculateEstimatedConsumptionDate(item);
+
+    let statusIcon;
+    switch(item.status) {
+        case STATUS.FRESH:
+            statusIcon = '<i class="fas fa-check-circle" style="color: var(--success-color);"></i>';
+            break;
+        case STATUS.EXPIRING_SOON:
+            statusIcon = '<i class="fas fa-exclamation-triangle" style="color: var(--warning-color);"></i>';
+            break;
+        case STATUS.EXPIRED:
+            statusIcon = '<i class="fas fa-times-circle" style="color: var(--danger-color);"></i>';
+            break;
+        default:
+            statusIcon = '';
+    }
+
     row.innerHTML = `
         <td class="editable" data-field="name">${itemName}</td>
         <td class="editable" data-field="quantity">${item.quantity}</td>
         <td class="editable" data-field="unit">${item.unit}</td>
         <td class="editable" data-field="expiryDate">${item.expiryDate}</td>
-        <td class="editable" data-field="status"><span>${item.status}</span></td>
+        <td class="editable" data-field="status"><span>${statusIcon} ${item.status}</span></td>
         <td>${estimatedConsumptionDate}</td>
         <td class="actions">
             <button onclick="incrementQuantity('${itemName}')">+</button>
@@ -520,7 +536,22 @@ function editField(itemName, field) {
 }
 
 function deleteItem(itemName) {
-    // 实现删除物品的逻辑
+    if (confirm(`确定要删除 ${itemName} 吗？`)) {
+        try {
+            delete inventory[itemName];
+            saveInventory();
+            updateInventoryTables();
+            showNotification('删除成功', `${itemName} 已从库存中删除。`);
+        } catch (error) {
+            logError('删除物品时发生错误:', error);
+            showNotification('删除失败', `无法删除 ${itemName}，请稍后重试。`, 'error');
+        }
+    }
+}
+
+function showNotification(title, message, type = 'info') {
+    // 这里可以使用一个简单的 alert，或者实现一个更复杂的通知系统
+    alert(`${title}: ${message}`);
 }
 
 function applyFilters() {

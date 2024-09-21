@@ -4,35 +4,194 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>库存管理 - 智能冰箱管家</title>
-    <link rel="stylesheet" href="./styles.css?v=1.0">
+    <link rel="stylesheet" href="./styles.css?v=1.3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <script src="./script.js?v=1.0" defer></script>
+    <script src="./script.js?v=1.3" defer></script>
     <style>
-        .status-fresh {
-            color: #008000; /* 绿色文字 */
+        :root {
+            --primary-color: #4CAF50;
+            --primary-light: #81C784;
+            --primary-dark: #388E3C;
+            --secondary-color: #2196F3;
+            --background-color: #F0F0F0;
+            --text-color: #333333;
+            --warning-color: #FFA000;
+            --danger-color: #D32F2F;
+            --success-color: #388E3C;
         }
-        .status-expiring-soon {
-            color: #FFA500; /* 黄色文字 */
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: Arial, sans-serif;
         }
-        .status-expired {
-            color: #FF0000; /* 红色文字 */
+
+        header {
+            background-color: var(--primary-dark);
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            color: var(--primary-light);
+        }
+
+        nav ul {
+            display: flex;
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav li {
+            margin-left: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: white;
+            font-weight: 500;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav a:hover, nav a.active {
+            background-color: var(--primary-color);
+        }
+
+        nav a i {
+            margin-right: 5px;
+            color: var(--primary-light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 10px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .dashboard-cards {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex: 1;
+            margin: 0 10px;
+            text-align: center;
+        }
+
+        .card h3 {
+            margin-top: 0;
+        }
+
+        .card p {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 0;
+        }
+
+        .status-fresh { color: var(--success-color); }
+        .status-expiring-soon { color: var(--warning-color); }
+        .status-expired { color: var(--danger-color); }
+
+        #inventoryTables table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        #inventoryTables th, #inventoryTables td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        #inventoryTables th {
+            background-color: var(--primary-light);
+            color: white;
+        }
+
+        #inventoryTables tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        .filter-section select, .filter-section button {
+            margin-right: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-snowflake"></i> 智能冰箱管家</h1>
+    <header>
+        <div class="header-content">
+            <a href="./index.html" class="logo">
+                <i class="fas fa-snowflake"></i>
+                <span>智能冰箱管家</span>
+            </a>
             <nav>
                 <ul>
-                    <li><a href="index.html"><i class="fas fa-home"></i> 仪表盘</a></li>
-                    <li><a href="inventory-management.html" class="active"><i class="fas fa-list"></i> 库存管理</a></li>
-                    <li><a href="shopping-list.html"><i class="fas fa-shopping-cart"></i> 购物清单</a></li>
-                    <li><a href="recipes.html"><i class="fas fa-utensils"></i> 食谱推荐</a></li>
+                    <li><a href="./index.html"><i class="fas fa-home"></i>仪表盘</a></li>
+                    <li><a href="./inventory-management.html" class="active"><i class="fas fa-list"></i>库存管理</a></li>
+                    <li><a href="./shopping-list.html"><i class="fas fa-shopping-cart"></i>购物清单</a></li>
+                    <li><a href="./recipes.html"><i class="fas fa-utensils"></i>食谱推荐</a></li>
                 </ul>
             </nav>
-        </header>
+        </div>
+    </header>
 
+    <div class="container">
         <main>
             <section id="inventory-management">
                 <h2>库存管理</h2>
@@ -54,6 +213,10 @@
                     <button id="globalAddItemBtn" onclick="showGlobalAddItemModal()">+ 添加新物品</button>
                 </div>
                 <div id="inventoryTables"></div>
+                <div class="batch-operations">
+                    <button id="batchEditBtn" disabled>批量编辑</button>
+                    <button id="batchDeleteBtn" disabled>批量删除</button>
+                </div>
             </section>
         </main>
     </div>
